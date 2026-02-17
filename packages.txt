@@ -1,0 +1,6 @@
+chromium
+chromium-driver
+libnss3
+libglib2.0-0
+libgconf-2-4
+libfontconfig1
