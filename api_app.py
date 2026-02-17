@@ -3,6 +3,9 @@ import json
 import pandas as pd
 from datetime import datetime
 import traceback
+import subprocess
+import sys
+import os
 
 # Password protection
 def check_password():
@@ -182,6 +185,23 @@ def extract_data(url, instruction, schema_input, provider, model, api_key,
     status_text = st.empty()
     
     try:
+        # --- BROWSER INSTALLATION FIX FOR STREAMLIT CLOUD ---
+        status_text.text("🔧 Checking browser dependencies...")
+        progress_bar.progress(5)
+        
+        try:
+            # Check if chromium is installed, if not, install it via playwright CLI
+            # We use sys.executable to ensure we use the same python environment
+            subprocess.run(
+                [sys.executable, "-m", "playwright", "install", "chromium"], 
+                check=True,
+                capture_output=True
+            )
+        except Exception as e:
+            # Just print the warning, sometimes it's already installed
+            print(f"Browser installation check skipped or failed: {e}")
+        # -----------------------------------------------------
+
         status_text.text("🔧 Initializing Maxun client...")
         progress_bar.progress(10)
         
@@ -198,7 +218,6 @@ def extract_data(url, instruction, schema_input, provider, model, api_key,
         
         # For xAI, we need to set a custom base URL
         if provider == "xai":
-            import os
             os.environ["OPENAI_BASE_URL"] = "https://api.x.ai/v1"
         
         client = MaxunClient(
